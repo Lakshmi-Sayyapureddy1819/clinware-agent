@@ -1,31 +1,19 @@
-# Multi-stage Dockerfile for production
+# ---- Build stage ----
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+WORKDIR /build
 
-# 1) Builder - compile and create shaded jar
-FROM maven:3.9.5-eclipse-temurin-21 AS builder
-WORKDIR /app
 COPY pom.xml .
+RUN mvn dependency:go-offline
+
 COPY src ./src
-RUN mvn -B -DskipTests package
+RUN mvn clean package -DskipTests
 
-# 2) Runtime
-FROM eclipse-temurin:21-jre
-
-# Install Node.js (for tavily-server.js)
-RUN apt-get update && \
-    apt-get install -y curl gnupg && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
+# ---- Runtime stage ----
+FROM eclipse-temurin:17-jre
 WORKDIR /app
-# Copy shaded jar produced by the builder
-COPY --from=builder /app/target/*-shaded.jar /app/app.jar
-# Copy tavily server
-COPY tavily-server.js /app/
 
-EXPOSE 7000
-ENV PORT=7000
+# copy ANY spring-boot runnable jar and rename to app.jar
+COPY --from=build /build/target/*-SNAPSHOT.jar app.jar
 
-HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:$PORT/health || exit 1
-
-CMD ["java", "-jar", "/app/app.jar"]
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app/app.jar"]
