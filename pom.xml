@@ -88,12 +88,12 @@
             </plugin>
 
             <!-- Run locally with mvn exec:java -->
-            <plugin>
+           <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>com.clinware.ClinwareAgent</mainClass>
+                    <mainClass>ClinwareAgent</mainClass>
                 </configuration>
             </plugin>
 
@@ -114,7 +114,7 @@
 
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.clinware.ClinwareAgent</mainClass>
+                                    <mainClass>ClinwareAgent</mainClass>
                                 </transformer>
                             </transformers>
 
