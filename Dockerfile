@@ -6,7 +6,6 @@ WORKDIR /build
 COPY pom.xml .
 COPY src ./src
 COPY tavily-server.js . 
-
 # Build the JAR
 RUN mvn clean package -DskipTests
 
@@ -25,9 +24,8 @@ RUN apt-get update && \
 COPY --from=build /build/target/clinware-agent-1.0-SNAPSHOT.jar app.jar
 
 # 3. Copy the Node.js script (Crucial Step!)
-# We copy it from the build context to the runtime folder so Java can find it
 COPY tavily-server.js /app/tavily-server.js
 
-# 4. Set permissions
+# 4. Set permissions and run
 EXPOSE 7000
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
